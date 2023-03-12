@@ -1,18 +1,34 @@
 #!/usr/bin/env bash
 
-PYTIME_PROJECT_DIR="$(realpath "$(dirname "$0")"/..)"
-PYTIME_ACTIVATE="${PYTIME_PROJECT_DIR}/venv/bin/activate"
-PYTIME_PYTHEE="${PYTIME_PROJECT_DIR}/py/the_pythee.py"
-PYTIME_SERVICE_DIR="${PYTIME_PROJECT_DIR}/systemd"
-PYTIME_LOGS_DIR="${PYTIME_PROJECT_DIR}/logs"
-PYTIME_LOG_FILE="${PYTIME_LOGS_DIR}/pytheetor.log"
-PYTIME_BOOT_FILE='/tmp/pytime.boot'
-#PYTIME_SERVICE="${PYTIME_PROJECT_DIR}/systemd/${PYTIME_SERVICE_NAME}"
-PYTIME_SERVICE_NAME='pytime.service'
-PYTIME_TIMER_NAME='pytime.timer'
+initialize() {
+  init_vars
+  systemd_templatize
+  boot_check
+}
 
-#SYSTEM_CTL="sudo $(which systemctl) "
-SYSTEM_CTL="$(which systemctl) --user "
+init_vars() {
+  PYTIME_NAME='pytime'
+  PYTIME_PROJECT_DIR="$(realpath "$(dirname "$0")"/..)"
+  PYTIME_ACTIVATE="${PYTIME_PROJECT_DIR}/venv/bin/activate"
+  PYTIME_PYTHEE="${PYTIME_PROJECT_DIR}/py/the_pythee.py"
+  PYTIME_SERVICE_DIR="${PYTIME_PROJECT_DIR}/systemd"
+  PYTIME_LOGS_DIR="${PYTIME_PROJECT_DIR}/logs"
+  PYTIME_LOG_FILE="${PYTIME_LOGS_DIR}/pytheetor.log"
+  PYTIME_BOOT_FILE="/tmp/${PYTIME_NAME}.boot"
+
+  # Switch between system and user mode:
+  #SYSTEM_CTL="sudo $(which systemctl) "
+  SYSTEM_CTL="$(which systemctl) --user "
+}
+
+systemd_templatize() {
+  esc_path=$(systemd-escape --path "$PYTIME_PROJECT_DIR")
+  #  debug "esc_path: ${esc_path}"
+  pytheetor_esc_path="${esc_path}-sh-pytheetor"
+  #  debug "pytheetor_esc_path: ${pytheetor_esc_path}"
+  PYTIME_INSTANCE_NAME="${pytheetor_esc_path}"
+  PYTIME_SERVICE_NAME="${PYTIME_NAME}@.${PYTIME_INSTANCE_NAME}.service"
+}
 
 activenvate() {
   #  defunc
@@ -33,32 +49,44 @@ run_pythee() {
 
 systemd_install() {
   defunc
-  systemd_install_unit "${PYTIME_SERVICE_NAME}"
-  systemd_install_unit "${PYTIME_TIMER_NAME}"
+  systemd_install_unit "${PYTIME_NAME}" 'service' #'template'
+  systemd_enable_instance_unit "${PYTIME_NAME}" 'service' "${PYTIME_INSTANCE_NAME}"
+
+  systemd_install_unit "${PYTIME_NAME}" 'timer' #'template'
+  systemd_enable_instance_unit "${PYTIME_NAME}" 'timer' "${PYTIME_INSTANCE_NAME}"
+
   ${SYSTEM_CTL} daemon-reload
 }
 
 systemd_uninstall() {
   defunc
-  systemd_uninstall_unit "${PYTIME_SERVICE_NAME}"
-  systemd_uninstall_unit "${PYTIME_TIMER_NAME}"
+  systemd_disable_instance_unit "${PYTIME_NAME}" 'service' "${PYTIME_INSTANCE_NAME}"
+  systemd_uninstall_unit "${PYTIME_NAME}" 'service' #'template'
+
+  systemd_disable_instance_unit "${PYTIME_NAME}" 'timer' "${PYTIME_INSTANCE_NAME}"
+  systemd_uninstall_unit "${PYTIME_NAME}" 'timer' #'template'
+
   ${SYSTEM_CTL} daemon-reload
 }
 
 systemd_install_unit() {
   defunc
-  local name file
-  name="$1"
-  debug "name: ${name}"
+  local base_name name file
+  base_name="$1"
+  unit_type="$2"
+  name="${base_name}@.${unit_type}"
+  #  debug "base_name: ${base_name}"
+  #  debug "unit_type: ${unit_type}"
+  #  debug "name: ${name}"
   file="${PYTIME_SERVICE_DIR}/${name}"
-  debug "file: ${file}"
+  #  debug "file: ${file}"
   if systemd_exists_unit "${name}"; then
     systemd_uninstall_unit "${name}"
   fi
   ${SYSTEM_CTL} link "${file}"
-  if [[ "${name}" == *'.timer' ]]; then
-    ${SYSTEM_CTL} enable "${name}"
-  fi
+  #  if [[ "${name}" == *'.timer' ]]; then
+  #    ${SYSTEM_CTL} enable "${name}"
+  #  fi
 
   #  ${SYSTEM_CTL} --no-pager cat "${name}"
   txt="$(${SYSTEM_CTL} cat "${name}" 2>/dev/null)"
@@ -68,17 +96,54 @@ systemd_install_unit() {
 
 systemd_uninstall_unit() {
   defunc
-  local name
-  name="$1"
+  local base_name name file
+  base_name="$1"
+  unit_type="$2"
+  name="${base_name}@.${unit_type}"
+  #  debug "base_name: ${base_name}"
+  #  debug "unit_type: ${unit_type}"
+  #  debug "name: ${name}"
   if systemd_exists_unit "${name}"; then
-    ${SYSTEM_CTL} stop "${name}"
-    if [[ "${name}" == *'.timer' ]]; then
-      ${SYSTEM_CTL} clean --what=state "${name}"
-    fi
+    #    ${SYSTEM_CTL} stop "${name}"
+    #    if [[ "${unit_type}" == 'timer' ]]; then
+    #      ${SYSTEM_CTL} clean --what=state "${name}"
+    #    fi
     ${SYSTEM_CTL} disable "${name}"
   else
     echo "No unit file for: ${name}"
   fi
+}
+
+systemd_enable_instance_unit() {
+  defunc
+  local base_name name
+  base_name="$1"
+  unit_type="$2"
+  instance_name="$3"
+  name="${base_name}@${instance_name}.${unit_type}"
+  #  debug "base_name: ${base_name}"
+  #  debug "unit_type: ${unit_type}"
+  #  debug "instance_name: ${instance_name}"
+  #  debug "name: ${name}"
+  ${SYSTEM_CTL} enable "${name}"
+}
+
+systemd_disable_instance_unit() {
+  defunc
+  local base_name name
+  base_name="$1"
+  unit_type="$2"
+  instance_name="$3"
+  name="${base_name}@${instance_name}.${unit_type}"
+  #  debug "base_name: ${base_name}"
+  #  debug "unit_type: ${unit_type}"
+  #  debug "instance_name: ${instance_name}"
+  #  debug "name: ${name}"
+  if [[ "${unit_type}" == 'timer' ]]; then
+    ${SYSTEM_CTL} stop "${name}"
+    ${SYSTEM_CTL} clean --what=state "${name}"
+  fi
+  ${SYSTEM_CTL} disable "${name}"
 }
 
 systemd_unit_file() {
@@ -89,9 +154,9 @@ systemd_unit_file() {
     #    echo "txt: $txt"
     line1="$(echo "$txt" | head -n 1)"
     path="${line1:2}"
-    echo "$path"
+    echo "$path" # YES ECHO HERE!
   else
-    echo "Failed to get unit file for: $name"
+    debug "Failed to get unit file for: $name"
     return 1
   fi
 }
@@ -160,7 +225,26 @@ exists_boot_file() {
   [[ -f "$PYTIME_BOOT_FILE" ]]
 }
 
-boot_check
+develop_pytime() {
+  defunc
+  show_vars
+}
+
+show_vars() {
+  defunc
+  echo " - PYTIME_PROJECT_DIR: ${PYTIME_PROJECT_DIR}"
+  echo " - PYTIME_ACTIVATE: ${PYTIME_ACTIVATE}"
+  echo " - PYTIME_PYTHEE: ${PYTIME_PYTHEE}"
+  echo " - PYTIME_SERVICE_DIR: ${PYTIME_SERVICE_DIR}"
+  echo " - PYTIME_LOGS_DIR: ${PYTIME_LOGS_DIR}"
+  echo " - PYTIME_LOG_FILE: ${PYTIME_LOG_FILE}"
+  echo " - PYTIME_BOOT_FILE: ${PYTIME_BOOT_FILE}"
+  echo " - PYTIME_SERVICE_NAME: ${PYTIME_SERVICE_NAME}"
+  echo " - SYSTEM_CTL: ${SYSTEM_CTL}"
+  echo
+}
+
+initialize
 
 #### fluff ####
 
