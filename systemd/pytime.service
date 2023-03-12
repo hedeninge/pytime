@@ -1,0 +1,11 @@
+[Unit]
+Description=Pytime Service
+
+[Service]
+Type=oneshot
+#Type=simple
+#ExecStartPre=/opt/projects/hedeninge/pytime/sh/pytheetor_other.sh 'start_pre'
+#ExecStopPost=/opt/projects/hedeninge/pytime/sh/pytheetor_other.sh 'stop_post'
+
+ExecStart=/opt/projects/hedeninge/pytime/sh/pytheetor.sh
+# todo not hardcode.

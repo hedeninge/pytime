@@ -1,0 +1,160 @@
+timer note
+
+----------------------------------------------------------------
+
+https://www.freedesktop.org/software/systemd/man/systemd.timer.html
+https://www.freedesktop.org/software/systemd/man/systemd.time.html
+----------------------------------------------------------------
+
+Table 1. Settings and their starting points
+
+Setting	Meaning
+OnActiveSec=	Defines a timer relative to the moment the timer unit itself is activated.
+OnBootSec=	Defines a timer relative to when the machine was booted up. In containers, for the system manager instance, this is mapped to OnStartupSec=, making both equivalent.
+OnStartupSec=	Defines a timer relative to when the service manager was first started. For system timer units this is very similar to OnBootSec= as the system service manager is generally started very early at boot. It's primarily useful when configured in units running in the per-user service manager, as the user service manager is generally started on first login only, not already during boot.
+OnUnitActiveSec=	Defines a timer relative to when the unit the timer unit is activating was last activated.
+OnUnitInactiveSec=	Defines a timer relative to when the unit the timer unit is activating was last deactivated.
+
+
+----------------------------------------------------------------
+
+systemctl --type=target
+
+systemctl --user --type=target
+----------------------------------------------------------------
+[sermin@asusi7 hedeninge_managor_project]$ systemctl --user --type=target
+  UNIT                                               LOAD   ACTIVE SUB    DESCRIPTION                               >
+  basic.target                                       loaded active active Basic System
+  default.target                                     loaded active active Main User Target
+  gnome-session-initialized.target                   loaded active active GNOME Session is initialized
+  gnome-session-manager.target                       loaded active active GNOME Session Manager is ready
+  gnome-session-pre.target                           loaded active active Tasks to be run before GNOME Session starts
+  gnome-session-wayland.target                       loaded active active GNOME Wayland Session
+  gnome-session-wayland@gnome.target                 loaded active active GNOME Wayland Session (session: gnome)
+  gnome-session-x11-services-ready.target            loaded active active GNOME session X11 services
+  gnome-session-x11-services.target                  loaded active active GNOME session X11 services
+  gnome-session.target                               loaded active active GNOME Session
+  gnome-session@gnome.target                         loaded active active GNOME Session (session: gnome)
+  graphical-session-pre.target                       loaded active active Session services which should run early be>
+  graphical-session.target                           loaded active active Current graphical user session
+  org.gnome.SettingsDaemon.A11ySettings.target       loaded active active GNOME accessibility target
+  org.gnome.SettingsDaemon.Color.target              loaded active active GNOME color management target
+  org.gnome.SettingsDaemon.Datetime.target           loaded active active GNOME date & time target
+  org.gnome.SettingsDaemon.Housekeeping.target       loaded active active GNOME maintenance of expirable data target
+  org.gnome.SettingsDaemon.Keyboard.target           loaded active active GNOME keyboard configuration target
+  org.gnome.SettingsDaemon.MediaKeys.target          loaded active active GNOME keyboard shortcuts target
+  org.gnome.SettingsDaemon.Power.target              loaded active active GNOME power management target
+  org.gnome.SettingsDaemon.PrintNotifications.target loaded active active GNOME printer notifications target
+  org.gnome.SettingsDaemon.Rfkill.target             loaded active active GNOME RFKill support target
+  org.gnome.SettingsDaemon.ScreensaverProxy.target   loaded active active GNOME FreeDesktop screensaver target
+  org.gnome.SettingsDaemon.Sharing.target            loaded active active GNOME file sharing target
+  org.gnome.SettingsDaemon.Smartcard.target          loaded active active GNOME smartcard target
+  org.gnome.SettingsDaemon.Sound.target              loaded active active GNOME sound sample caching target
+  org.gnome.SettingsDaemon.UsbProtection.target      loaded active active GNOME USB protection target
+  org.gnome.SettingsDaemon.Wacom.target              loaded active active GNOME Wacom tablet support target
+  org.gnome.SettingsDaemon.XSettings.target          loaded active active GNOME XSettings target
+  org.gnome.Shell.target                             loaded active active GNOME Shell
+  paths.target                                       loaded active active Paths
+  sockets.target                                     loaded active active Sockets
+  timers.target                                      loaded active active Timers
+
+LOAD   = Reflects whether the unit definition was properly loaded.
+ACTIVE = The high-level unit activation state, i.e. generalization of SUB.
+SUB    = The low-level unit activation state, values depend on unit type.
+33 loaded units listed. Pass --all to see loaded but inactive units, too.
+To show all installed unit files use 'systemctl list-unit-files'.
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+
+

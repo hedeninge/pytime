@@ -1,0 +1,17 @@
+[Unit]
+Description=Pytime Timer
+After=network.target
+
+
+[Timer]
+Persistent=true
+OnBootSec=0min
+OnUnitActiveSec=5
+#OnCalendar=*:*:5
+#OnCalendar=*:*:0,15,30,45
+#OnCalendar=*:0/5
+#OnStartupSec=1min
+#OnCalendar=*-*-* 00:00:00
+
+[Install]
+WantedBy=default.target
