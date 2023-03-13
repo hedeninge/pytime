@@ -23,6 +23,9 @@ init_vars() {
   # Switch between system and user mode:
   #SYSTEM_CTL="sudo $(which systemctl) "
   SYSTEM_CTL="$(which systemctl) --user "
+  #Also for journalctl:
+  #JOURNAL_CTL="sudo $(which journalctl) "
+  JOURNAL_CTL="$(which journalctl) --user "
 }
 
 systemd_templatize() {
@@ -147,6 +150,10 @@ run_pythee() {
   "${PYTIME_PYTHON}" "$PYTIME_PYTHEE" 'test' "$@"
 }
 
+journalctl_follow_timer() {
+  defunc
+  ${JOURNAL_CTL} -fu "$(timer_instance)"
+}
 systemd_start_timer() {
   defunc
   #  name="${PYTIME_NAME}@${PYTIME_INSTANCE_NAME}.timer"
