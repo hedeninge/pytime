@@ -36,11 +36,11 @@ systemd_templatize() {
   #  debug "pytheetor_esc_path: ${pytheetor_esc_path}"
   #  PYTIME_INSTANCE_NAME="${pytheetor_esc_path}"
   PYTIME_INSTANCE_NAME="${esc_path}"
-  PYTIME_SERVICE_NAME="${PYTIME_NAME}@.${PYTIME_INSTANCE_NAME}.service"
+  #  PYTIME_SERVICE_NAME="${PYTIME_NAME}@.${PYTIME_INSTANCE_NAME}.service"
 }
 
 env_ize() {
-#  defunc
+  #  defunc
   local env_file
   env_file="${PYTIME_PROJECT_DIR}/.env.${PYTIME_NAME}"
   if [[ ! -f "${env_file}" ]]; then
@@ -155,34 +155,68 @@ run_pythee() {
 
 journalctl_follow_service() {
   defunc
-  ${JOURNAL_CTL} -fu "$(service_instance)"
+  ${JOURNAL_CTL} -fu "$(systemd_instance_name_service)"
 }
 
 journalctl_follow_timer() {
   defunc
-  ${JOURNAL_CTL} -fu "$(timer_instance)"
+  ${JOURNAL_CTL} -fu "$(systemd_instance_name_timer)"
 }
 
 systemd_start_timer() {
   defunc
   #  name="${PYTIME_NAME}@${PYTIME_INSTANCE_NAME}.timer"
   #  ${SYSTEM_CTL} start "${name}"
-  ${SYSTEM_CTL} start "$(timer_instance)"
+  ${SYSTEM_CTL} start "$(systemd_instance_name_timer)"
 }
 
 systemd_stop_timer() {
   defunc
-  ${SYSTEM_CTL} stop "$(timer_instance)"
+  ${SYSTEM_CTL} stop "$(systemd_instance_name_timer)"
 }
 
-service_instance() {
-  name="${PYTIME_NAME}@${PYTIME_INSTANCE_NAME}.service"
+unit_name() {
+  local unit_type name
+  unit_type="$1"
+  name="${PYTIME_NAME}@"
+  if [[ $2 != 'template' ]]; then
+    name="${name}${PYTIME_INSTANCE_NAME}"
+  fi
+  name="${name}.${unit_type}"
   echo "${name}"
 }
 
-timer_instance() {
-  name="${PYTIME_NAME}@${PYTIME_INSTANCE_NAME}.timer"
+service_template_name() {
+  unit_name 'service' 'template'
+}
+
+service_instance_name() {
+  unit_name 'service'
+}
+
+timer_template_name() {
+  unit_name 'timer' 'template'
+}
+
+timer_instance_name() {
+  unit_name 'timer'
+}
+
+systemd_instance_name() {
+  name="${PYTIME_NAME}@${PYTIME_INSTANCE_NAME}.$1"
   echo "${name}"
+}
+
+systemd_instance_name_service() {
+  systemd_instance_name 'service'
+  #  name="${PYTIME_NAME}@${PYTIME_INSTANCE_NAME}.service"
+  #  echo "${name}"
+}
+
+systemd_instance_name_timer() {
+  systemd_instance_name 'timer'
+  #  name="${PYTIME_NAME}@${PYTIME_INSTANCE_NAME}.timer"
+  #  echo "${name}"
 }
 
 systemd_install() {
@@ -316,11 +350,11 @@ systemd_exists_unit() {
 
 systemd_service_testrun() {
   defunc
-  if ! systemd_exists_unit "${PYTIME_SERVICE_NAME}"; then
+  if ! systemd_exists_unit "$(systemd_instance_name_service)"; then
     echo "unit does not exist"
     exit 1
   else
-    ${SYSTEM_CTL} start "${PYTIME_SERVICE_NAME}"
+    ${SYSTEM_CTL} start "$(systemd_instance_name_service)"
   fi
 }
 
@@ -403,15 +437,3 @@ initialize
 #  echo "EXEFUNC '$(basename "$0")'  '${FUNCNAME[0]}' $*"
 # in blue text:
 #  echo -e "\e[34mEXEFUNC '$(basename "$0")'  '${FUNCNAME[0]}' $*\e[0m"
-
-#  echo " - PYTIME_PROJECT_DIR: ${PYTIME_PROJECT_DIR}"
-#  echo " - PYTIME_ACTIVATE: ${PYTIME_ACTIVATE}"
-#  echo " - PYTIME_PYTHEE: ${PYTIME_PYTHEE}"
-#  echo " - PYTIME_SERVICE_DIR: ${PYTIME_SERVICE_DIR}"
-#  echo " - PYTIME_LOGS_DIR: ${PYTIME_LOGS_DIR}"
-#  echo " - PYTIME_LOG_FILE: ${PYTIME_LOG_FILE}"
-#  echo " - PYTIME_BOOT_FILE: ${PYTIME_BOOT_FILE}"
-#  echo " - PYTIME_SERVICE_NAME: ${PYTIME_SERVICE_NAME}"
-#  echo " - SYSTEM_CTL: ${SYSTEM_CTL}"
-#  echo
-#}

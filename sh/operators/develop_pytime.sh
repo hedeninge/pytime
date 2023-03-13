@@ -1,6 +1,19 @@
 #!/usr/bin/env bash
 
 execute() {
+#  print_new_global_vars
+  show_unit_names
+}
+
+show_unit_names() {
+  load_lib
+  service_template_name
+  service_instance_name
+  timer_template_name
+  timer_instance_name
+}
+
+print_new_global_vars() {
   locals_str='lib key dxp line kryt origin_s COLUMNS LINES'
   declare -a avoids
 
@@ -17,8 +30,8 @@ execute() {
     #    echo "key: $key"
     origin_keys+=("$key")
   done <<<"$dxp"
-#  echo "origin_keys: ${origin_keys[*]}"
-#  kryt="kryten"
+  #  echo "origin_keys: ${origin_keys[*]}"
+  #  kryt="kryten"
 
   load_lib
 
@@ -37,11 +50,15 @@ execute() {
 
   #  echo "new_keys: ${new_keys[*]}"
 
+  declare -a diff_keys
   for key in "${new_keys[@]}"; do
     if [[ ! " ${origin_keys[*]} " == *"$key"* ]]; then
+      diff_keys+=("$key")
       printf "%36s = %s\n" "$key" "${!key}"
     fi
   done
+
+  echo "diff_keys: ${diff_keys[*]}"
 }
 
 load_lib() {
