@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 execute() {
-#  print_new_global_vars
-  show_unit_names
+  print_new_global_vars
+#  show_unit_names
 }
 
 show_unit_names() {

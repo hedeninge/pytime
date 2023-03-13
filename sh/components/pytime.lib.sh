@@ -469,13 +469,19 @@ test_basic() {
 
 show_vars() {
   defunc
-  # echo all global variables:
-  # shellcheck disable=SC2154
-  for var in "${!PYTIME_@}"; do
-    echo "$var=${!var}"
+  keys=(ENV_PYTIME_MISSING_VENV_ACTION ENV_PYTIME_PYTHEE ENV_PYTIME_VENV JOURNAL_CTL PYTIME_ACTIVATE PYTIME_BOOT_FILE PYTIME_DEFAULT_PYTHEE PYTIME_DEFAULT_VENV PYTIME_INSTANCE_NAME PYTIME_LOGS_DIR PYTIME_LOG_FILE PYTIME_NAME PYTIME_PROJECT_DIR PYTIME_PYTHEE PYTIME_SERVICE_DIR SYSTEM_CTL)
+  echo
+  for key in "${keys[@]}"; do
+    echo "$key=${!key}"
   done
   echo
-  env
+  # echo all global variables:
+  ##   shellcheck disable=SC2154
+  #  for var in "${!PYTIME_@}"; do
+  #    echo "$var=${!var}"
+  #  done
+  #  echo
+  #  env
 }
 
 initialize
