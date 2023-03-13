@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 execute() {
-  ../components/pytheetor.sh "$@"
+  ../components/pytheetor "$@"
 }
 
 execute "$@"
