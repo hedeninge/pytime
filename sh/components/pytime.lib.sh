@@ -11,7 +11,7 @@ init_vars() {
   PYTIME_NAME='pytime'
   PYTIME_DEFAULT_PYTHEE='py/the_pythee.py'
   PYTIME_DEFAULT_VENV='venv'
-  PYTIME_PROJECT_DIR="$(realpath "$(dirname "$0")"/..)"
+  PYTIME_PROJECT_DIR="$(realpath "$(dirname "$0")"/../..)"
   #  PYTIME_ACTIVATE="${PYTIME_PROJECT_DIR}/venv/bin/activate"
   PYTIME_ACTIVATE="${PYTIME_PROJECT_DIR}/${PYTIME_DEFAULT_VENV}/bin/activate"
   PYTIME_PYTHEE="${PYTIME_PROJECT_DIR}/${PYTIME_DEFAULT_PYTHEE}"
@@ -29,11 +29,12 @@ init_vars() {
 }
 
 systemd_templatize() {
-  esc_path=$(systemd-escape --path "$PYTIME_PROJECT_DIR")
+  esc_path=$(systemd-escape --path "$PYTIME_PROJECT_DIR"/sh/components/pytheetor)
   #  debug "esc_path: ${esc_path}"
-  pytheetor_esc_path="${esc_path}-sh-pytheetor"
+  #  pytheetor_esc_path="${esc_path}-sh-pytheetor"
   #  debug "pytheetor_esc_path: ${pytheetor_esc_path}"
-  PYTIME_INSTANCE_NAME="${pytheetor_esc_path}"
+  #  PYTIME_INSTANCE_NAME="${pytheetor_esc_path}"
+  PYTIME_INSTANCE_NAME="${esc_path}"
   PYTIME_SERVICE_NAME="${PYTIME_NAME}@.${PYTIME_INSTANCE_NAME}.service"
 }
 

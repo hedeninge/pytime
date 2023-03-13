@@ -2,11 +2,11 @@
 
 execute() {
   load_lib
-  log_follow
+  journalctl_follow_service
 }
 
 load_lib() {
-  lib="$(dirname "${BASH_SOURCE[0]}")/pytime.lib.sh"
+  lib="$(realpath "$(dirname "${BASH_SOURCE[0]}")/../components/pytime.lib.sh")"
   # shellcheck disable=SC1090
   . "$lib" && return 0
   echo "Failed to load lib: $lib"
