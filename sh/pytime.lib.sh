@@ -313,6 +313,7 @@ reset_logs() {
 }
 
 boot_check() {
+  mkdir -p "$PYTIME_LOGS_DIR"
   if ! exists_boot_file; then
     debug "boot reset"
     touch "$PYTIME_BOOT_FILE"
@@ -323,6 +324,10 @@ boot_check() {
 
 exists_boot_file() {
   [[ -f "$PYTIME_BOOT_FILE" ]]
+}
+
+exists_logs_dir() {
+  [[ -d "$PYTIME_LOGS_DIR" ]]
 }
 
 develop_pytime() {
