@@ -150,23 +150,31 @@ run_pythee() {
 }
 
 journalctl_follow_service() {
-  defunc
-  ${JOURNAL_CTL} -fu "$(service_instance_name)"
+  local name
+  name="$(service_instance_name)"
+  defunc "${name}"
+  ${JOURNAL_CTL} -fu "${name}"
 }
 
 journalctl_follow_timer() {
-  defunc
-  ${JOURNAL_CTL} -fu "$(timer_instance_name)"
+  local name
+  name="$(timer_instance_name)"
+  defunc "${name}"
+  ${JOURNAL_CTL} -fu "${name}"
 }
 
 systemd_start_timer() {
-  defunc
-  ${SYSTEM_CTL} start "$(timer_instance_name)"
+  local name
+  name="$(timer_instance_name)"
+  defunc "${name}"
+  ${SYSTEM_CTL} start "${name}"
 }
 
 systemd_stop_timer() {
-  defunc
-  ${SYSTEM_CTL} stop "$(timer_instance_name)"
+  local name
+  name="$(timer_instance_name)"
+  defunc "${name}"
+  ${SYSTEM_CTL} stop "${name}"
 }
 
 unit_name() {
