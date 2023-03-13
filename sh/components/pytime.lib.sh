@@ -32,11 +32,7 @@ systemd_templatize() {
   local esc_path
   esc_path=$(systemd-escape --path "$PYTIME_PROJECT_DIR"/sh/components/pytheetor)
   #  debug "esc_path: ${esc_path}"
-  #  pytheetor_esc_path="${esc_path}-sh-pytheetor"
-  #  debug "pytheetor_esc_path: ${pytheetor_esc_path}"
-  #  PYTIME_INSTANCE_NAME="${pytheetor_esc_path}"
   PYTIME_INSTANCE_NAME="${esc_path}"
-  #  PYTIME_SERVICE_NAME="${PYTIME_NAME}@.${PYTIME_INSTANCE_NAME}.service"
 }
 
 env_ize() {
@@ -155,24 +151,22 @@ run_pythee() {
 
 journalctl_follow_service() {
   defunc
-  ${JOURNAL_CTL} -fu "$(systemd_instance_name_service)"
+  ${JOURNAL_CTL} -fu "$(service_instance_name)"
 }
 
 journalctl_follow_timer() {
   defunc
-  ${JOURNAL_CTL} -fu "$(systemd_instance_name_timer)"
+  ${JOURNAL_CTL} -fu "$(timer_instance_name)"
 }
 
 systemd_start_timer() {
   defunc
-  #  name="${PYTIME_NAME}@${PYTIME_INSTANCE_NAME}.timer"
-  #  ${SYSTEM_CTL} start "${name}"
-  ${SYSTEM_CTL} start "$(systemd_instance_name_timer)"
+  ${SYSTEM_CTL} start "$(timer_instance_name)"
 }
 
 systemd_stop_timer() {
   defunc
-  ${SYSTEM_CTL} stop "$(systemd_instance_name_timer)"
+  ${SYSTEM_CTL} stop "$(timer_instance_name)"
 }
 
 unit_name() {
@@ -202,124 +196,171 @@ timer_instance_name() {
   unit_name 'timer'
 }
 
-systemd_instance_name() {
-  name="${PYTIME_NAME}@${PYTIME_INSTANCE_NAME}.$1"
-  echo "${name}"
-}
-
-systemd_instance_name_service() {
-  systemd_instance_name 'service'
-  #  name="${PYTIME_NAME}@${PYTIME_INSTANCE_NAME}.service"
-  #  echo "${name}"
-}
-
-systemd_instance_name_timer() {
-  systemd_instance_name 'timer'
-  #  name="${PYTIME_NAME}@${PYTIME_INSTANCE_NAME}.timer"
-  #  echo "${name}"
+systemd_origin_file() {
+  defunc
+  local name file
+  name="$1"
+  file="${PYTIME_SERVICE_DIR}/${name}"
+  echo "${file}"
 }
 
 systemd_install() {
   defunc
-  systemd_install_unit "${PYTIME_NAME}" 'service' #'template'
-  systemd_enable_instance_unit "${PYTIME_NAME}" 'service' "${PYTIME_INSTANCE_NAME}"
+  systemd_install_unit "$(service_template_name)"
+  #  systemd_install_unit "${PYTIME_NAME}" 'service' #'template'
+  systemd_enable_instance_unit "$(service_instance_name)"
+  #  systemd_enable_instance_unit "${PYTIME_NAME}" 'service' "${PYTIME_INSTANCE_NAME}"
 
-  systemd_install_unit "${PYTIME_NAME}" 'timer' #'template'
-  systemd_enable_instance_unit "${PYTIME_NAME}" 'timer' "${PYTIME_INSTANCE_NAME}"
+  systemd_install_unit "$(timer_template_name)"
+  #  systemd_install_unit "${PYTIME_NAME}" 'timer' #'template'
+  systemd_enable_instance_unit "$(timer_instance_name)"
+  #  systemd_enable_instance_unit "${PYTIME_NAME}" 'timer' "${PYTIME_INSTANCE_NAME}"
 
   ${SYSTEM_CTL} daemon-reload
 }
 
 systemd_uninstall() {
   defunc
-  systemd_disable_instance_unit "${PYTIME_NAME}" 'service' "${PYTIME_INSTANCE_NAME}"
-  systemd_uninstall_unit "${PYTIME_NAME}" 'service' #'template'
 
-  systemd_disable_instance_unit "${PYTIME_NAME}" 'timer' "${PYTIME_INSTANCE_NAME}"
-  systemd_uninstall_unit "${PYTIME_NAME}" 'timer' #'template'
+  systemd_disable_instance_unit "$(service_instance_name)"
+  #  systemd_disable_instance_unit "${PYTIME_NAME}" 'service' "${PYTIME_INSTANCE_NAME}"
+
+  systemd_uninstall_unit "$(service_template_name)"
+  #  systemd_uninstall_unit "${PYTIME_NAME}" 'service' #'template'
+
+  systemd_disable_instance_unit "$(timer_instance_name)"
+  #  systemd_disable_instance_unit "${PYTIME_NAME}" 'timer' "${PYTIME_INSTANCE_NAME}"
+  systemd_uninstall_unit "$(timer_template_name)"
+  #  systemd_uninstall_unit "${PYTIME_NAME}" 'timer' #'template'
 
   ${SYSTEM_CTL} daemon-reload
 }
 
 systemd_install_unit() {
   defunc
-  local base_name name file txt line1
-  base_name="$1"
-  unit_type="$2"
-  name="${base_name}@.${unit_type}"
-  #  debug "base_name: ${base_name}"
-  #  debug "unit_type: ${unit_type}"
-  #  debug "name: ${name}"
-  file="${PYTIME_SERVICE_DIR}/${name}"
-  #  debug "file: ${file}"
+  local name file
+  name="$1"
+  file="$(systemd_origin_file "${name}")"
   if systemd_exists_unit "${name}"; then
     systemd_uninstall_unit "${name}"
   fi
   ${SYSTEM_CTL} link "${file}"
-  #  if [[ "${name}" == *'.timer' ]]; then
-  #    ${SYSTEM_CTL} enable "${name}"
-  #  fi
-
-  #  ${SYSTEM_CTL} --no-pager cat "${name}"
   txt="$(${SYSTEM_CTL} cat "${name}" 2>/dev/null)"
   line1="$(echo "$txt" | head -n 1)"
   debug "${line1}"
 }
 
+#_systemd_install_unit() {
+#  defunc
+#  local base_name name file txt line1
+#  base_name="$1"
+#  unit_type="$2"
+#  name="${base_name}@.${unit_type}"
+#  #  debug "base_name: ${base_name}"
+#  #  debug "unit_type: ${unit_type}"
+#  #  debug "name: ${name}"
+#  file="${PYTIME_SERVICE_DIR}/${name}"
+#  #  debug "file: ${file}"
+#  if systemd_exists_unit "${name}"; then
+#    systemd_uninstall_unit "${name}"
+#  fi
+#  ${SYSTEM_CTL} link "${file}"
+#  #  if [[ "${name}" == *'.timer' ]]; then
+#  #    ${SYSTEM_CTL} enable "${name}"
+#  #  fi
+#
+#  #  ${SYSTEM_CTL} --no-pager cat "${name}"
+#  txt="$(${SYSTEM_CTL} cat "${name}" 2>/dev/null)"
+#  line1="$(echo "$txt" | head -n 1)"
+#  debug "${line1}"
+#}
+
 systemd_uninstall_unit() {
   defunc
-  local base_name name file
-  base_name="$1"
-  unit_type="$2"
-  name="${base_name}@.${unit_type}"
-  #  debug "base_name: ${base_name}"
-  #  debug "unit_type: ${unit_type}"
-  #  debug "name: ${name}"
+  local name
+  name="$1"
   if systemd_exists_unit "${name}"; then
-    #    ${SYSTEM_CTL} stop "${name}"
-    #    if [[ "${unit_type}" == 'timer' ]]; then
-    #      ${SYSTEM_CTL} clean --what=state "${name}"
-    #    fi
     ${SYSTEM_CTL} disable "${name}"
   else
     echo "No unit file for: ${name}"
   fi
 }
 
+#_systemd_uninstall_unit() {
+#  defunc
+#  local base_name name file
+#  base_name="$1"
+#  unit_type="$2"
+#  name="${base_name}@.${unit_type}"
+#  #  debug "base_name: ${base_name}"
+#  #  debug "unit_type: ${unit_type}"
+#  #  debug "name: ${name}"
+#  if systemd_exists_unit "${name}"; then
+#    #    ${SYSTEM_CTL} stop "${name}"
+#    #    if [[ "${unit_type}" == 'timer' ]]; then
+#    #      ${SYSTEM_CTL} clean --what=state "${name}"
+#    #    fi
+#    ${SYSTEM_CTL} disable "${name}"
+#  else
+#    echo "No unit file for: ${name}"
+#  fi
+#}
+
 systemd_enable_instance_unit() {
   defunc
-  local base_name name
-  base_name="$1"
-  unit_type="$2"
-  instance_name="$3"
-  name="${base_name}@${instance_name}.${unit_type}"
-  #  debug "base_name: ${base_name}"
-  #  debug "unit_type: ${unit_type}"
-  #  debug "instance_name: ${instance_name}"
-  #  debug "name: ${name}"
+  local name
+  name="$1"
   ${SYSTEM_CTL} enable "${name}"
-  if [[ "${unit_type}" == 'timer' ]]; then
+  if [[ "${name}" == *'.timer' ]]; then
     ${SYSTEM_CTL} start "${name}"
   fi
 }
 
+#_systemd_enable_instance_unit() {
+#  defunc
+#  local base_name name
+#  base_name="$1"
+#  unit_type="$2"
+#  instance_name="$3"
+#  name="${base_name}@${instance_name}.${unit_type}"
+#  #  debug "base_name: ${base_name}"
+#  #  debug "unit_type: ${unit_type}"
+#  #  debug "instance_name: ${instance_name}"
+#  #  debug "name: ${name}"
+#  ${SYSTEM_CTL} enable "${name}"
+#  if [[ "${unit_type}" == 'timer' ]]; then
+#    ${SYSTEM_CTL} start "${name}"
+#  fi
+#}
+
 systemd_disable_instance_unit() {
   defunc
-  local base_name name
-  base_name="$1"
-  unit_type="$2"
-  instance_name="$3"
-  name="${base_name}@${instance_name}.${unit_type}"
-  #  debug "base_name: ${base_name}"
-  #  debug "unit_type: ${unit_type}"
-  #  debug "instance_name: ${instance_name}"
-  #  debug "name: ${name}"
+  local name
+  name="$1"
   if [[ "${unit_type}" == 'timer' ]]; then
     ${SYSTEM_CTL} stop "${name}"
     ${SYSTEM_CTL} clean --what=state "${name}"
   fi
   ${SYSTEM_CTL} disable "${name}"
 }
+
+#_systemd_disable_instance_unit() {
+#  defunc
+#  local base_name name
+#  base_name="$1"
+#  unit_type="$2"
+#  instance_name="$3"
+#  name="${base_name}@${instance_name}.${unit_type}"
+#  #  debug "base_name: ${base_name}"
+#  #  debug "unit_type: ${unit_type}"
+#  #  debug "instance_name: ${instance_name}"
+#  #  debug "name: ${name}"
+#  if [[ "${unit_type}" == 'timer' ]]; then
+#    ${SYSTEM_CTL} stop "${name}"
+#    ${SYSTEM_CTL} clean --what=state "${name}"
+#  fi
+#  ${SYSTEM_CTL} disable "${name}"
+#}
 
 systemd_unit_file() {
   local name
@@ -350,11 +391,11 @@ systemd_exists_unit() {
 
 systemd_service_testrun() {
   defunc
-  if ! systemd_exists_unit "$(systemd_instance_name_service)"; then
+  if ! systemd_exists_unit "$(service_instance_name)"; then
     echo "unit does not exist"
     exit 1
   else
-    ${SYSTEM_CTL} start "$(systemd_instance_name_service)"
+    ${SYSTEM_CTL} start "$(service_instance_name)"
   fi
 }
 
