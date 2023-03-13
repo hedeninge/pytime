@@ -234,7 +234,8 @@ systemd_install() {
   #  systemd_enable_instance_unit "${PYTIME_NAME}" 'timer' "${PYTIME_INSTANCE_NAME}"
 
   ${SYSTEM_CTL} daemon-reload
-  systemd_start_both
+  #  systemd_start_both
+  systemd_start_timer
 }
 
 systemd_uninstall() {
@@ -329,9 +330,9 @@ systemd_enable_instance_unit() {
   local name
   name="$1"
   ${SYSTEM_CTL} enable "${name}"
-#  if [[ "${name}" == *'.timer' ]]; then
-#    ${SYSTEM_CTL} start "${name}"
-#  fi
+  #  if [[ "${name}" == *'.timer' ]]; then
+  #    ${SYSTEM_CTL} start "${name}"
+  #  fi
 }
 
 #_systemd_enable_instance_unit() {
