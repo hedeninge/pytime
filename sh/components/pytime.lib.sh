@@ -29,6 +29,7 @@ init_vars() {
 }
 
 systemd_templatize() {
+  local esc_path
   esc_path=$(systemd-escape --path "$PYTIME_PROJECT_DIR"/sh/components/pytheetor)
   #  debug "esc_path: ${esc_path}"
   #  pytheetor_esc_path="${esc_path}-sh-pytheetor"
@@ -39,7 +40,8 @@ systemd_templatize() {
 }
 
 env_ize() {
-  defunc
+#  defunc
+  local env_file
   env_file="${PYTIME_PROJECT_DIR}/.env.${PYTIME_NAME}"
   if [[ ! -f "${env_file}" ]]; then
     # Write env file with heredoc:
@@ -207,7 +209,7 @@ systemd_uninstall() {
 
 systemd_install_unit() {
   defunc
-  local base_name name file
+  local base_name name file txt line1
   base_name="$1"
   unit_type="$2"
   name="${base_name}@.${unit_type}"
@@ -378,18 +380,20 @@ develop_pytime() {
   show_vars
 }
 
+test_basic() {
+  defunc
+  show_vars
+}
+
 show_vars() {
   defunc
-  echo " - PYTIME_PROJECT_DIR: ${PYTIME_PROJECT_DIR}"
-  echo " - PYTIME_ACTIVATE: ${PYTIME_ACTIVATE}"
-  echo " - PYTIME_PYTHEE: ${PYTIME_PYTHEE}"
-  echo " - PYTIME_SERVICE_DIR: ${PYTIME_SERVICE_DIR}"
-  echo " - PYTIME_LOGS_DIR: ${PYTIME_LOGS_DIR}"
-  echo " - PYTIME_LOG_FILE: ${PYTIME_LOG_FILE}"
-  echo " - PYTIME_BOOT_FILE: ${PYTIME_BOOT_FILE}"
-  echo " - PYTIME_SERVICE_NAME: ${PYTIME_SERVICE_NAME}"
-  echo " - SYSTEM_CTL: ${SYSTEM_CTL}"
+  # echo all global variables:
+  # shellcheck disable=SC2154
+  for var in "${!PYTIME_@}"; do
+    echo "$var=${!var}"
+  done
   echo
+  env
 }
 
 initialize
@@ -399,3 +403,15 @@ initialize
 #  echo "EXEFUNC '$(basename "$0")'  '${FUNCNAME[0]}' $*"
 # in blue text:
 #  echo -e "\e[34mEXEFUNC '$(basename "$0")'  '${FUNCNAME[0]}' $*\e[0m"
+
+#  echo " - PYTIME_PROJECT_DIR: ${PYTIME_PROJECT_DIR}"
+#  echo " - PYTIME_ACTIVATE: ${PYTIME_ACTIVATE}"
+#  echo " - PYTIME_PYTHEE: ${PYTIME_PYTHEE}"
+#  echo " - PYTIME_SERVICE_DIR: ${PYTIME_SERVICE_DIR}"
+#  echo " - PYTIME_LOGS_DIR: ${PYTIME_LOGS_DIR}"
+#  echo " - PYTIME_LOG_FILE: ${PYTIME_LOG_FILE}"
+#  echo " - PYTIME_BOOT_FILE: ${PYTIME_BOOT_FILE}"
+#  echo " - PYTIME_SERVICE_NAME: ${PYTIME_SERVICE_NAME}"
+#  echo " - SYSTEM_CTL: ${SYSTEM_CTL}"
+#  echo
+#}
