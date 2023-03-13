@@ -2,9 +2,9 @@
 
 initialize() {
   init_vars
+  boot_check
   env_ize
   systemd_templatize
-  boot_check
 }
 
 init_vars() {
