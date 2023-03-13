@@ -197,7 +197,6 @@ timer_instance_name() {
 }
 
 systemd_origin_file() {
-  defunc
   local name file
   name="$1"
   file="${PYTIME_SERVICE_DIR}/${name}"
