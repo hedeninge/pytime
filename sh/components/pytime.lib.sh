@@ -9,6 +9,9 @@ initialize() {
 
 init_vars() {
   PYTIME_NAME='pytime'
+
+  PYTIME_CUP_NAME='covfefe'
+
   PYTIME_DEFAULT_PYTHEE='py/the_pythee.py'
   PYTIME_DEFAULT_VENV='venv'
   PYTIME_PROJECT_DIR="$(realpath "$(dirname "$0")"/../..)"
@@ -190,7 +193,8 @@ systemd_stop_timer() {
 unit_name() {
   local unit_type name
   unit_type="$1"
-  name="${PYTIME_NAME}@"
+  #  name="${PYTIME_NAME}@"
+  name="${PYTIME_CUP_NAME}@"
   if [[ $2 != 'template' ]]; then
     name="${name}${PYTIME_INSTANCE_NAME}"
   fi
@@ -217,7 +221,8 @@ timer_instance_name() {
 systemd_origin_file() {
   local name file
   name="$1"
-  file="${PYTIME_SERVICE_DIR}/${name}"
+  #  file="${PYTIME_SERVICE_DIR}/${name}"
+  file="${PYTIME_SERVICE_DIR}/${PYTIME_CUP_NAME}/${name}"
   echo "${file}"
 }
 
@@ -259,31 +264,6 @@ systemd_install_unit() {
   line1="$(echo "$txt" | head -n 1)"
   debug "${line1}"
 }
-
-#_systemd_install_unit() {
-#  defunc
-#  local base_name name file txt line1
-#  base_name="$1"
-#  unit_type="$2"
-#  name="${base_name}@.${unit_type}"
-#  #  debug "base_name: ${base_name}"
-#  #  debug "unit_type: ${unit_type}"
-#  #  debug "name: ${name}"
-#  file="${PYTIME_SERVICE_DIR}/${name}"
-#  #  debug "file: ${file}"
-#  if systemd_exists_unit "${name}"; then
-#    systemd_uninstall_unit "${name}"
-#  fi
-#  ${SYSTEM_CTL} link "${file}"
-#  #  if [[ "${name}" == *'.timer' ]]; then
-#  #    ${SYSTEM_CTL} enable "${name}"
-#  #  fi
-#
-#  #  ${SYSTEM_CTL} --no-pager cat "${name}"
-#  txt="$(${SYSTEM_CTL} cat "${name}" 2>/dev/null)"
-#  line1="$(echo "$txt" | head -n 1)"
-#  debug "${line1}"
-#}
 
 systemd_uninstall_unit() {
   defunc

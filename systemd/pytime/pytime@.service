@@ -1,0 +1,6 @@
+[Unit]
+Description=Pytime Service    %i
+
+[Service]
+Type=oneshot
+ExecStart=/%I
