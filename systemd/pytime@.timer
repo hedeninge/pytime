@@ -4,6 +4,7 @@ After=network.target
 
 
 [Timer]
+AccuracySec=1us
 Persistent=true
 OnBootSec=0min
 OnUnitActiveSec=5
