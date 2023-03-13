@@ -7,6 +7,7 @@ After=network.target
 AccuracySec=1us
 Persistent=true
 OnBootSec=0min
+# Both OnActiveSec AND OnUnitActiveSec are NEEDED!
 OnActiveSec=1
 OnUnitActiveSec=5
 #OnCalendar=*:*:5

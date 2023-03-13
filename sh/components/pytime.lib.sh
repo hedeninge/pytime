@@ -224,14 +224,10 @@ systemd_origin_file() {
 systemd_install() {
   defunc
   systemd_install_unit "$(service_template_name)"
-  #  systemd_install_unit "${PYTIME_NAME}" 'service' #'template'
   systemd_enable_instance_unit "$(service_instance_name)"
-  #  systemd_enable_instance_unit "${PYTIME_NAME}" 'service' "${PYTIME_INSTANCE_NAME}"
 
   systemd_install_unit "$(timer_template_name)"
-  #  systemd_install_unit "${PYTIME_NAME}" 'timer' #'template'
   systemd_enable_instance_unit "$(timer_instance_name)"
-  #  systemd_enable_instance_unit "${PYTIME_NAME}" 'timer' "${PYTIME_INSTANCE_NAME}"
 
   ${SYSTEM_CTL} daemon-reload
   #  systemd_start_both
@@ -242,15 +238,10 @@ systemd_uninstall() {
   defunc
 
   systemd_disable_instance_unit "$(service_instance_name)"
-  #  systemd_disable_instance_unit "${PYTIME_NAME}" 'service' "${PYTIME_INSTANCE_NAME}"
-
   systemd_uninstall_unit "$(service_template_name)"
-  #  systemd_uninstall_unit "${PYTIME_NAME}" 'service' #'template'
 
   systemd_disable_instance_unit "$(timer_instance_name)"
-  #  systemd_disable_instance_unit "${PYTIME_NAME}" 'timer' "${PYTIME_INSTANCE_NAME}"
   systemd_uninstall_unit "$(timer_template_name)"
-  #  systemd_uninstall_unit "${PYTIME_NAME}" 'timer' #'template'
 
   ${SYSTEM_CTL} daemon-reload
 }

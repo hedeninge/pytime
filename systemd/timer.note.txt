@@ -1,5 +1,9 @@
 timer note
 
+https://github.com/systemd/systemd/issues/4572#issuecomment-260014156
+This is really just a misunderstanding. OnActiveSec= defines a timer that elapses a certain amount of time the timer unit itself is actviated. i.e. it defines exactly one wakeup, after you issue "systemctl start foo.timer". It is not repeated then, it's a singular event. If you want multiple, repetitive arguments, you need to combine it with another stanza, for example OnUnitActiveSec=. That stanza will trigger a certain amount of time after the unit the timer unit is supposed to activate has been activated. This of course is repetitive, but only applies to units that have been activated at least once. Hence. OnActiveSec= is for the first trigger of the timer unit, and OnUnitActiveSec= may then be used for all subsequent starts.
+
+
 ----------------------------------------------------------------
 
 https://www.freedesktop.org/software/systemd/man/systemd.timer.html
