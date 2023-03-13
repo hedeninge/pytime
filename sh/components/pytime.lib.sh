@@ -170,6 +170,16 @@ systemd_start_timer() {
   ${SYSTEM_CTL} start "${name}"
 }
 
+systemd_start_both() {
+  local name
+  name="$(timer_instance_name)"
+  defunc "${name}"
+  ${SYSTEM_CTL} start "${name}"
+  name="$(service_instance_name)"
+  defunc "${name}"
+  ${SYSTEM_CTL} start "${name}"
+}
+
 systemd_stop_timer() {
   local name
   name="$(timer_instance_name)"
@@ -224,7 +234,7 @@ systemd_install() {
   #  systemd_enable_instance_unit "${PYTIME_NAME}" 'timer' "${PYTIME_INSTANCE_NAME}"
 
   ${SYSTEM_CTL} daemon-reload
-  systemd_start_timer
+  systemd_start_both
 }
 
 systemd_uninstall() {
