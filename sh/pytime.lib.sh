@@ -2,15 +2,19 @@
 
 initialize() {
   init_vars
+  env_ize
   systemd_templatize
   boot_check
 }
 
 init_vars() {
   PYTIME_NAME='pytime'
+  PYTIME_DEFAULT_PYTHEE='py/the_pythee.py'
+  PYTIME_DEFAULT_VENV='venv'
   PYTIME_PROJECT_DIR="$(realpath "$(dirname "$0")"/..)"
-  PYTIME_ACTIVATE="${PYTIME_PROJECT_DIR}/venv/bin/activate"
-  PYTIME_PYTHEE="${PYTIME_PROJECT_DIR}/py/the_pythee.py"
+  #  PYTIME_ACTIVATE="${PYTIME_PROJECT_DIR}/venv/bin/activate"
+  PYTIME_ACTIVATE="${PYTIME_PROJECT_DIR}/${PYTIME_DEFAULT_VENV}/bin/activate"
+  PYTIME_PYTHEE="${PYTIME_PROJECT_DIR}/${PYTIME_DEFAULT_PYTHEE}"
   PYTIME_SERVICE_DIR="${PYTIME_PROJECT_DIR}/systemd"
   PYTIME_LOGS_DIR="${PYTIME_PROJECT_DIR}/logs"
   PYTIME_LOG_FILE="${PYTIME_LOGS_DIR}/pytheetor.log"
@@ -30,10 +34,106 @@ systemd_templatize() {
   PYTIME_SERVICE_NAME="${PYTIME_NAME}@.${PYTIME_INSTANCE_NAME}.service"
 }
 
+env_ize() {
+  defunc
+  env_file="${PYTIME_PROJECT_DIR}/.env.${PYTIME_NAME}"
+  if [[ ! -f "${env_file}" ]]; then
+    # Write env file with heredoc:
+    cat <<-EOF >"${env_file}"
+## A path to the python being launched.
+## The path can be relative to the project dir or absolute.
+## An absolute starts with a '/'.
+## A relative path should just start with name of its path from the project dir - no leading '.' or stuff.
+## This is the default by relative path, which will be used if ENV_PYTIME_PYTHEE is not set here (or fails):
+ENV_PYTIME_PYTHEE='${PYTIME_DEFAULT_PYTHEE}'
+## An example of an alternate file as a relative path:
+# ENV_PYTIME_PYTHEE='py/alternative_pythee.py'
+##And an example of the default file as an absolute path:
+# ENV_PYTIME_PYTHEE='${PYTIME_PYTHEE}'
+##
+## Almost the same goes for venv:
+ENV_PYTIME_VENV='${PYTIME_DEFAULT_VENV}'
+ENV_PYTIME_MISSING_VENV_ACTION='create' # 'create' or 'fail'
+EOF
+  fi
+  # shellcheck disable=SC1090
+  . "${env_file}" || fail "Failed to load env file: ${env_file}"
+  # if ENV_PYTIME_PYTHEE is set, use it:
+  if [[ -n "${ENV_PYTIME_PYTHEE}" ]]; then
+    local abs_pythee
+    # if ENV_PYTIME_PYTHEE is not an absolute path, make it one:
+    if [[ "${ENV_PYTIME_PYTHEE:0:1}" != '/' ]]; then
+      abs_pythee="${PYTIME_PROJECT_DIR}/${ENV_PYTIME_PYTHEE}"
+    else
+      abs_pythee="${ENV_PYTIME_PYTHEE}"
+    fi
+    if [[ -f "${abs_pythee}" ]]; then
+      PYTIME_PYTHEE="${abs_pythee}"
+    fi
+  fi
+
+  if [[ -n "${ENV_PYTIME_VENV}" ]]; then
+    local abs_venv
+    # if ENV_PYTIME_VENV is not an absolute path, make it one:
+    if [[ "${ENV_PYTIME_VENV:0:1}" != '/' ]]; then
+      abs_venv="${PYTIME_PROJECT_DIR}/${ENV_PYTIME_VENV}"
+    else
+      abs_venv="${ENV_PYTIME_VENV}"
+    fi
+    #    #    if [[ -d "${abs_venv}" ]]; then
+    PYTIME_ACTIVATE="${abs_venv}/bin/activate"
+    #    #    fi
+  fi
+
+  if [[ ! -f "${PYTIME_ACTIVATE}" ]]; then
+    #    debug "ENV_PYTIME_MISSING_VENV_ACTION: ${ENV_PYTIME_MISSING_VENV_ACTION}"
+    if [[ "${ENV_PYTIME_MISSING_VENV_ACTION}" == 'create' ]]; then
+      create_venv
+    else
+      fail "Failed to find venv: ${PYTIME_ACTIVATE}"
+    fi
+  fi
+
+  if [[ ! -f "${PYTIME_ACTIVATE}" ]]; then
+    fail "Really failed to create or find venv: ${PYTIME_ACTIVATE}"
+  fi
+
+}
+
+create_venv() {
+  defunc
+  local venv_dir
+  venv_dir=$(dirname "$(dirname "${PYTIME_ACTIVATE}")")
+  debug "venv_dir: ${venv_dir}"
+  mkdir -p "${venv_dir}" || fail "Failed to create venv dir: ${venv_dir}"
+  debug "Creating venv ... : ${venv_dir}"
+  python3 -m venv "${venv_dir}" || fail "Failed to create venv: ${venv_dir}"
+  #  --prompt PROMPT       Provides an alternative prompt prefix for this environment.
+  activenvate
+  python3 -m pip install --upgrade pip
+  debug "VIRTUAL_ENV: ${VIRTUAL_ENV}"
+  req_file="${PYTIME_PROJECT_DIR}/packages.req.txt"
+  if [[ -f "${req_file}" ]]; then
+    # shellcheck disable=SC1090
+    #    . "${PYTIME_ACTIVATE}" || fail "Failed to activate venv"
+    if [[ -n "${VIRTUAL_ENV}" ]]; then
+      debug "Installing requirements: ${req_file}"
+      pip install --progress-bar=on --upgrade -r "${req_file}" || fail "Failed to install requirements: ${req_file}"
+    else
+      fail "Apparently failed to activate venv: ${PYTIME_ACTIVATE}"
+    fi
+  fi
+  deactivate
+}
+
 activenvate() {
-  #  defunc
+  defunc
+  if [[ $(type -t deactivate) == 'function' ]]; then
+    deactivate
+  fi
   # shellcheck disable=SC1090
   . "$PYTIME_ACTIVATE" || fail "Failed to activate venv"
+  debug "VIRTUAL_ENV: ${VIRTUAL_ENV}"
   PYTIME_PYTHON=$(which python3) || fail "Failed to find python"
   #  debug "PYTIME_PYTHON: ${PYTIME_PYTHON}"
 }
