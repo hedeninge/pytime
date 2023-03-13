@@ -336,6 +336,10 @@ debug() {
   log "$*"
 }
 
+log_follow() {
+  tail -F "$PYTIME_LOG_FILE"
+}
+
 log() {
   #  mkdir -p "$PYTIME_LOGS_DIR"
   echo "$*" >>"$PYTIME_LOG_FILE"
