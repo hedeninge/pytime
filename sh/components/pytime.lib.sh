@@ -24,11 +24,19 @@ init_vars() {
   PYTIME_BOOT_FILE="/tmp/${PYTIME_NAME}.boot"
 
   # Switch between system and user mode:
-  #SYSTEM_CTL="sudo $(which systemctl) "
-  SYSTEM_CTL="$(which systemctl) --user "
-  #Also for journalctl:
-  #JOURNAL_CTL="sudo $(which journalctl) "
-  JOURNAL_CTL="$(which journalctl) --user "
+  PYTIME_SYSTEMD_MODE='user'
+  #  PYTIME_SYSTEMD_MODE='system'
+  if systemd_mode_is_user; then
+    SYSTEM_CTL="$(which systemctl) --user "
+    JOURNAL_CTL="$(which journalctl) --user "
+  else
+    SYSTEM_CTL="sudo $(which systemctl) "
+    JOURNAL_CTL="sudo $(which journalctl) "
+  fi
+}
+
+systemd_mode_is_user() {
+  [[ "$PYTIME_SYSTEMD_MODE" == 'user' ]]
 }
 
 systemd_templatize() {
