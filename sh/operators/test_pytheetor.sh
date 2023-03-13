@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 execute() {
-  ../components/pytheetor "$@"
+  exe="$(realpath "$(dirname "${BASH_SOURCE[0]}")/../components/pytheetor")"
+  "$exe" "$@"
 }
 
 execute "$@"
