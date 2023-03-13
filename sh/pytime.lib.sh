@@ -147,6 +147,23 @@ run_pythee() {
   "${PYTIME_PYTHON}" "$PYTIME_PYTHEE" 'test' "$@"
 }
 
+systemd_start_timer() {
+  defunc
+  #  name="${PYTIME_NAME}@${PYTIME_INSTANCE_NAME}.timer"
+  #  ${SYSTEM_CTL} start "${name}"
+  ${SYSTEM_CTL} start "$(timer_instance)"
+}
+
+systemd_stop_timer() {
+  defunc
+  ${SYSTEM_CTL} stop "$(timer_instance)"
+}
+
+timer_instance() {
+  name="${PYTIME_NAME}@${PYTIME_INSTANCE_NAME}.timer"
+  echo "${name}"
+}
+
 systemd_install() {
   defunc
   systemd_install_unit "${PYTIME_NAME}" 'service' #'template'
@@ -226,6 +243,9 @@ systemd_enable_instance_unit() {
   #  debug "instance_name: ${instance_name}"
   #  debug "name: ${name}"
   ${SYSTEM_CTL} enable "${name}"
+  if [[ "${unit_type}" == 'timer' ]]; then
+    ${SYSTEM_CTL} start "${name}"
+  fi
 }
 
 systemd_disable_instance_unit() {
