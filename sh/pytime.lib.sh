@@ -150,10 +150,16 @@ run_pythee() {
   "${PYTIME_PYTHON}" "$PYTIME_PYTHEE" 'test' "$@"
 }
 
+journalctl_follow_service() {
+  defunc
+  ${JOURNAL_CTL} -fu "$(service_instance)"
+}
+
 journalctl_follow_timer() {
   defunc
   ${JOURNAL_CTL} -fu "$(timer_instance)"
 }
+
 systemd_start_timer() {
   defunc
   #  name="${PYTIME_NAME}@${PYTIME_INSTANCE_NAME}.timer"
@@ -164,6 +170,11 @@ systemd_start_timer() {
 systemd_stop_timer() {
   defunc
   ${SYSTEM_CTL} stop "$(timer_instance)"
+}
+
+service_instance() {
+  name="${PYTIME_NAME}@${PYTIME_INSTANCE_NAME}.service"
+  echo "${name}"
 }
 
 timer_instance() {
