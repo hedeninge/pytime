@@ -131,6 +131,9 @@ ENV_PYTIME_PYTHEE='${PYTIME_DEFAULT_PYTHEE}'
 ## Almost the same goes for venv:
 ENV_PYTIME_VENV='${PYTIME_DEFAULT_VENV}'
 ENV_PYTIME_MISSING_VENV_ACTION='create' # 'create' or 'fail'
+##
+## Give your cup a name:
+ENV_PYTIME_CUP_NAME='my_cup'
 EOF
   fi
   # shellcheck disable=SC1090
@@ -175,6 +178,9 @@ EOF
     fail "Really failed to create or find venv: ${PYTIME_ACTIVATE}"
   fi
 
+  if [[ -n "${ENV_PYTIME_CUP_NAME}" ]]; then
+    PYTIME_CUP_NAME="${ENV_PYTIME_CUP_NAME}"
+  fi
 }
 
 create_venv() {
