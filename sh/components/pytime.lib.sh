@@ -332,6 +332,7 @@ systemd_uninstall() {
 
   ${SYSTEM_CTL} daemon-reload
   erase_xdg_dir
+  erase "$PYTIME_BOOT_FILE"
 }
 
 systemd_install_unit() {
@@ -359,26 +360,6 @@ systemd_uninstall_unit() {
   fi
 }
 
-#_systemd_uninstall_unit() {
-#  defunc
-#  local base_name name file
-#  base_name="$1"
-#  unit_type="$2"
-#  name="${base_name}@.${unit_type}"
-#  #  debug "base_name: ${base_name}"
-#  #  debug "unit_type: ${unit_type}"
-#  #  debug "name: ${name}"
-#  if systemd_exists_unit "${name}"; then
-#    #    ${SYSTEM_CTL} stop "${name}"
-#    #    if [[ "${unit_type}" == 'timer' ]]; then
-#    #      ${SYSTEM_CTL} clean --what=state "${name}"
-#    #    fi
-#    ${SYSTEM_CTL} disable "${name}"
-#  else
-#    echo "No unit file for: ${name}"
-#  fi
-#}
-
 systemd_enable_instance_unit() {
   defunc
   local name
@@ -388,23 +369,6 @@ systemd_enable_instance_unit() {
   #    ${SYSTEM_CTL} start "${name}"
   #  fi
 }
-
-#_systemd_enable_instance_unit() {
-#  defunc
-#  local base_name name
-#  base_name="$1"
-#  unit_type="$2"
-#  instance_name="$3"
-#  name="${base_name}@${instance_name}.${unit_type}"
-#  #  debug "base_name: ${base_name}"
-#  #  debug "unit_type: ${unit_type}"
-#  #  debug "instance_name: ${instance_name}"
-#  #  debug "name: ${name}"
-#  ${SYSTEM_CTL} enable "${name}"
-#  if [[ "${unit_type}" == 'timer' ]]; then
-#    ${SYSTEM_CTL} start "${name}"
-#  fi
-#}
 
 systemd_disable_instance_unit() {
   defunc
@@ -416,24 +380,6 @@ systemd_disable_instance_unit() {
   fi
   ${SYSTEM_CTL} disable "${name}"
 }
-
-#_systemd_disable_instance_unit() {
-#  defunc
-#  local base_name name
-#  base_name="$1"
-#  unit_type="$2"
-#  instance_name="$3"
-#  name="${base_name}@${instance_name}.${unit_type}"
-#  #  debug "base_name: ${base_name}"
-#  #  debug "unit_type: ${unit_type}"
-#  #  debug "instance_name: ${instance_name}"
-#  #  debug "name: ${name}"
-#  if [[ "${unit_type}" == 'timer' ]]; then
-#    ${SYSTEM_CTL} stop "${name}"
-#    ${SYSTEM_CTL} clean --what=state "${name}"
-#  fi
-#  ${SYSTEM_CTL} disable "${name}"
-#}
 
 systemd_unit_file() {
   local name
