@@ -133,7 +133,8 @@ ENV_PYTIME_VENV='${PYTIME_DEFAULT_VENV}'
 ENV_PYTIME_MISSING_VENV_ACTION='create' # 'create' or 'fail'
 ##
 ## Give your cup a name:
-ENV_PYTIME_CUP_NAME='my_cup'
+# ENV_PYTIME_CUP_NAME='my_cup'
+## Remember to also make a folder for it in the systemd dir in pytime, with appropriate unit files.
 EOF
   fi
   # shellcheck disable=SC1090
