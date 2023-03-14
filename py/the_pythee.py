@@ -1,3 +1,4 @@
+import os
 import sys
 
 
@@ -8,6 +9,9 @@ def main():
     if sys_args:
         debug(f'sys_args = {sys_args}')
 
+    CUPXECUTOR = os.environ.get('CUPXECUTOR', 'Nah ...')
+    if CUPXECUTOR is not None:
+        debug(f'CUPXECUTOR = {CUPXECUTOR}')
 
 def debug(msg, *args, **kwargs):
     if args:

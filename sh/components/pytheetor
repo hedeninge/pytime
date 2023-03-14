@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 execute() {
+#  load_config "$@"
   load_lib
   #  debug 'post load_lib'
   #  debug "PYTIME_PROJECT_DIR: $PYTIME_PROJECT_DIR"
@@ -15,5 +16,15 @@ load_lib() {
   echo "Failed to load lib: $lib"
   exit 1
 }
+
+#load_config() {
+#  #  CONFILE="${BASH_SOURCE[0]%.sh}.conf"
+#  CONFILE=$1
+#  echo "Load CONFILE: ${CONFILE}"
+#  # shellcheck disable=SC1090
+#  . "${CONFILE}" && return 0
+#  echo "${BASH_SOURCE[0]}; Failed to load lib: ${CONFILE}"
+#  exit 1
+#}
 
 execute "$@"

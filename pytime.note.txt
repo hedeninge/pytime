@@ -23,9 +23,9 @@ running in system-mode as root or user-mode as a normal user.
 
 in user-mode the config-file will be inside the users home-directory.
 # /home/sermin/.config/systemd/user/pytime/<cup>.conf
-~/.config/pytime/<cup>.conf
+~/.config/pytime/<cupname>.cup.conf
 
-in system-mode the config-file will be in /etc/pytime/<cup>.conf
+in system-mode the config-file will be in /etc/pytime/<cupname>.cup.conf
 ----------------------------------------------------------------
 
 

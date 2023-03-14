@@ -14,6 +14,7 @@ init_vars() {
 
   PYTIME_DEFAULT_PYTHEE='py/the_pythee.py'
   PYTIME_DEFAULT_VENV='venv'
+  PYTIME_LIB_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}}")")"
   PYTIME_PROJECT_DIR="$(realpath "$(dirname "$0")"/../..)"
   #  PYTIME_ACTIVATE="${PYTIME_PROJECT_DIR}/venv/bin/activate"
   PYTIME_ACTIVATE="${PYTIME_PROJECT_DIR}/${PYTIME_DEFAULT_VENV}/bin/activate"
@@ -24,8 +25,8 @@ init_vars() {
   PYTIME_BOOT_FILE="/tmp/${PYTIME_NAME}.boot"
 
   # Switch between system and user mode:
+  #    PYTIME_SYSTEMD_MODE='system'
   PYTIME_SYSTEMD_MODE='user'
-  #  PYTIME_SYSTEMD_MODE='system'
   if systemd_mode_is_user; then
     SYSTEM_CTL="$(which systemctl) --user "
     JOURNAL_CTL="$(which journalctl) --user "
@@ -37,6 +38,67 @@ init_vars() {
 
 systemd_mode_is_user() {
   [[ "$PYTIME_SYSTEMD_MODE" == 'user' ]]
+}
+
+create_xdg_files() {
+  PYTHEETOR="${PYTIME_LIB_DIR}/pytheetor"
+  CUPXECUTOR="${PYTIME_LIB_DIR}/cupxecutor.sh"
+  mkdir -p "$(pytime_config_dir)"
+  cat <<-EOF >"$(cup_config_file)"
+## pytime config file for systemd unit: $(service_instance_name)
+PYTHEETOR="${PYTHEETOR}"
+CUPXECUTOR="${CUPXECUTOR}"
+KURT=HANS
+# Comment
+
+EOF
+  # -------------------------
+  erase_fs_path "$(cup_exe_file)"
+  ln -s "${CUPXECUTOR}" "$(cup_exe_file)"
+  #  ln -s /opt/projects/hedeninge/pytime/sh/stuff/cup_exe_template.sh "$(cup_exe_file)"
+  #  cp -a /opt/projects/hedeninge/pytime/sh/stuff/cup_exe_template.sh "$(cup_exe_file)"
+  #  chmod +x "$(cup_exe_file)"
+}
+
+erase_xdg_dir() {
+  if [[ -d "$(pytime_config_dir)" ]]; then
+    erase_fs_path "$(pytime_config_dir)"
+  fi
+}
+
+erase_fs_path() {
+  if [[ ! -e $1 && ! -L $1 ]]; then
+    echo "NOT Erasing; path does not exist: $1"
+    return 1
+  fi
+  echo "Erasing: $1"
+  #create a directory in /tmp with unique name based on time:
+  destin_dir="/tmp/erased/erase_$(date +%s)"
+  mkdir -p "${destin_dir}"
+  #move the file to the new directory:
+  mv "$1" "${destin_dir}"
+}
+
+cup_config_file() {
+  local cup_file_name cup_file
+  cup_file_name="${PYTIME_CUP_NAME}.cup.conf"
+  cup_file="$(pytime_config_dir)/${cup_file_name}"
+  echo "${cup_file}"
+}
+
+cup_exe_file() {
+  local cup_file_name cup_file
+  cup_file_name="${PYTIME_CUP_NAME}.cup.sh"
+  cup_file="$(pytime_config_dir)/${cup_file_name}"
+  echo "${cup_file}"
+}
+
+pytime_config_dir() {
+  if systemd_mode_is_user; then
+    echo "${HOME}/.config/${PYTIME_NAME}"
+  else
+    echo "/etc/${PYTIME_NAME}"
+  fi
 }
 
 systemd_templatize() {
@@ -236,6 +298,9 @@ systemd_origin_file() {
 
 systemd_install() {
   defunc
+
+  create_xdg_files
+
   systemd_install_unit "$(service_template_name)"
   systemd_enable_instance_unit "$(service_instance_name)"
 
@@ -257,6 +322,7 @@ systemd_uninstall() {
   systemd_uninstall_unit "$(timer_template_name)"
 
   ${SYSTEM_CTL} daemon-reload
+  erase_xdg_dir
 }
 
 systemd_install_unit() {
@@ -460,7 +526,7 @@ test_basic() {
 
 show_vars() {
   defunc
-  keys=(PYTIME_PYTHON ENV_PYTIME_MISSING_VENV_ACTION ENV_PYTIME_PYTHEE ENV_PYTIME_VENV JOURNAL_CTL PYTIME_ACTIVATE PYTIME_BOOT_FILE PYTIME_DEFAULT_PYTHEE PYTIME_DEFAULT_VENV PYTIME_INSTANCE_NAME PYTIME_LOGS_DIR PYTIME_LOG_FILE PYTIME_NAME PYTIME_PROJECT_DIR PYTIME_PYTHEE PYTIME_SERVICE_DIR SYSTEM_CTL)
+  keys=(PYTIME_LIB_DIR PYTIME_CUP_NAME PYTIME_SYSTEMD_MODE PYTIME_PYTHON ENV_PYTIME_MISSING_VENV_ACTION ENV_PYTIME_PYTHEE ENV_PYTIME_VENV JOURNAL_CTL PYTIME_ACTIVATE PYTIME_BOOT_FILE PYTIME_DEFAULT_PYTHEE PYTIME_DEFAULT_VENV PYTIME_INSTANCE_NAME PYTIME_LOGS_DIR PYTIME_LOG_FILE PYTIME_NAME PYTIME_PROJECT_DIR PYTIME_PYTHEE PYTIME_SERVICE_DIR SYSTEM_CTL)
   echo
   for key in "${keys[@]}"; do
     echo "$key=${!key}"

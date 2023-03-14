@@ -1,6 +1,26 @@
 [Unit]
 Description=Pytime Service    %i
 
+# path to environment file:
+#File
+
 [Service]
+#WorkingDirectory=~
+
+#EnvironmentFile=-/etc/pytime/%i.cup.conf
+#Environment=CUP_NAME=%i
+#EnvironmentFile=-%E/pytime/%i.cup.conf
+#EnvironmentFile=-/home/%u/pytime/%i.cup.conf
 Type=oneshot
-ExecStart=/%I
+ExecStart=%E/pytime/%i.cup.sh %i
+#ExecStart=/$CUP_EXE ${CUP_NAME}
+#ExecStart=//opt/projects/hedeninge/pytime/sh/components/pytime_cup_exe.sh ${CUP_NAME} %S ${CUP_EXE} %E/pytime/%i.cup.conf
+
+
+# StateDirectory=	/var/lib/	$XDG_CONFIG_HOME	$STATE_DIRECTORY
+
+#$RUNTIME_DIRECTORY, $STATE_DIRECTORY, $CACHE_DIRECTORY, $LOGS_DIRECTORY, $CONFIGURATION_DIRECTORY
+#Absolute paths to the directories defined with RuntimeDirectory=, StateDirectory=, CacheDirectory=, LogsDirectory=, and ConfigurationDirectory= when those settings are used.
+
+
+

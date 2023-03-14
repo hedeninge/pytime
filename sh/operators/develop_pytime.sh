@@ -1,8 +1,17 @@
 #!/usr/bin/env bash
 
 execute() {
-  print_new_global_vars
-#  show_unit_names
+  #  print_new_global_vars
+  #  show_unit_names
+  fiddle_config_file
+}
+
+fiddle_config_file() {
+  load_lib
+  defunc
+  echo "cup_config_file: $(cup_config_file)"
+  create_xdg_files
+  cat "$(cup_config_file)"
 }
 
 show_unit_names() {
