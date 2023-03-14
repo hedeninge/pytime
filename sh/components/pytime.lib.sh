@@ -332,7 +332,7 @@ systemd_uninstall() {
 
   ${SYSTEM_CTL} daemon-reload
   erase_xdg_dir
-  erase "$PYTIME_BOOT_FILE"
+  erase_fs_path "$PYTIME_BOOT_FILE"
 }
 
 systemd_install_unit() {
