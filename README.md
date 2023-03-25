@@ -6,6 +6,8 @@
 ### Also see .env.pytime
 for configuration options.
 
+#### And look in pytime.note.txt
+
 ### And look in sh/operators
 for the operator-scripts.
 
@@ -16,3 +18,4 @@ After which one can enjoy following the journal:
 sh/operators/journalctl_follow_service.sh
 
 version 4
+
